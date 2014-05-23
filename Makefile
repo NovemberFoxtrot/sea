@@ -2,11 +2,14 @@ CFLAGS=-Wall -Wextra -Wformat=2 -Wno-format-nonliteral -Wshadow -Wpointer-arith 
 
 all: main
 
-main: main.o object.o
-	gcc main.o object.o -o main
+main: main.o object.o stk.o
+	gcc main.o object.o stk.o -o main
 
 main.o: main.c
 	gcc -c main.c
+
+stk.o: stk.c
+	gcc -c stk.c
 
 object.o: object.c
 	gcc -c object.c

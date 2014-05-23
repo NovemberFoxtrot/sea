@@ -1,208 +1,48 @@
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "game.h"
+#include "stk.h"
+#include "dbg.h"
 
-int Monster_attack(void *self, int damage)
-{
-	Monster *monster = self;
+const char *MY_NAME= "Mind Eraser";
 
-	if (monster->hit_points < 1) {
-		printf("%s is already dead, but you hit it again.", monster->_(description));
-		return 1;
+void scope_demo(int count) {
+	log_info("count is: %d", count);
+
+	if(count > 100) {
+		int count = 100; // bugs
+		
+		log_info("count in this scope is: %d", count);
 	}
 
-	if (damage > 0) {
-		printf("You attack %s for %d damage!\n", monster->_(description), damage);
-		monster->hit_points -= damage;
+	log_info("count is at exit: %d", count);
 
-		if (monster->hit_points > 0) {
-			printf("It is still alive.\n");
-			return 0;
-		} else {
-			printf("It is dead.\n");
-			return 1;
-		}
-	} else {
-		printf("You missed the %s!\n", monster->_(description));
-		return 0;
-	}
+	count = 3000;
+
+	log_info("count after assign: %d", count);
 }
 
-int Monster_init(void *self)
-{
-	Monster *monster = self;
-	monster->hit_points = 10;
-	return 1;
-}
+int main(int argc, char **argv) {
+	log_info("My name: %s", MY_NAME);
 
-Object MonsterProto = { .init = Monster_init, .attack = Monster_attack };
+	set_age(100);
 
-void *Room_move(void *self, Direction direction)
-{
-	Room *room = self;
-	Room *next = NULL;
+	log_info("My age is now: %d", get_age());
 
-	if (direction == NORTH && room->north) {
-		printf("You go north, into:\n");
-		next = room->north;
-	} else if (direction == SOUTH && room->south) {
-		printf("You go south, into:\n");
-		next = room->south;
-	} else if (direction == WEST && room->west) {
-		printf("You go west, into:\n");
-		next = room->west;
-	} else if (direction == EAST && room->east) {
-		printf("You go east, into:\n");
-		next = room->east;
-	} else {
-		printf("You can't go in that direction.\n");
-		next = NULL;
-	}
+	log_info("THE SIZE is: %d", THE_SIZE);
+	print_size();
 
-	if (next) {
-		next->_(describe)(next);
-	}
+	THE_SIZE = 9;
 
-	return next;
-}
+	log_info("THE SIZE is: %d", THE_SIZE);
+	print_size();
 
-int Room_attack(void *self, int damage)
-{
-	Room *room = self;
-	Monster *monster = room->bad_guy;
+	log_info("Ratio at first: %f", update_ratio(2.0));
+	log_info("Ratio again: %f", update_ratio(10.0));
+	log_info("Ratio once more: %f", update_ratio(300.0));
 
-	if (monster) {
-		monster->_(attack)(monster, damage);
-		return 1;
-	} else {
-		printf("You flail at nothing in the air. Idiot.\n");
-		return 0;
-	}
-}
+	int count = 4;
+	scope_demo(count);
+	scope_demo(count * 20);
 
-Object RoomProto = { .move = Room_move, .attack = Room_attack };
+	log_info("count after calling scope_demo: %d", count);
 
-void *Map_move(void *self, Direction direction)
-{
-	Map *map = self;
-	Room *location = map->location;
-	Room *next = NULL;
-
-	next = location->_(move)(location, direction);
-
-	if (next) {
-		map->location = next;
-	}
-
-	return next;
-}
-
-int Map_attack(void *self, int damage)
-{
-	Map *map = self;
-	Room *location = map->location;
-
-	return location->_(attack)(location, damage);
-}
-
-int Map_init(void *self)
-{
-	Map *map = self;
-
-	Room *hall = NEW(Room, "The great hall");
-	Room *throne = NEW(Room, "The throne room");
-	Room *arena = NEW(Room, "The arena, with the minotaur");
-	Room *kitchen = NEW(Room, "Kitchen, you have the knife now");
-
-	arena->bad_guy = NEW(Monster, "The evil minotaur");
-
-	hall->north = throne;
-
-	throne->west = arena;
-	throne->east = kitchen;
-	throne->south = hall;
-
-	arena->east = throne;
-	kitchen->west = throne;
-
-	map->start = hall;
-	map->location = hall;
-
-	return 1;
-}
-
-Object MapProto = { .init = Map_init, .move = Map_move, .attack = Map_attack };
-
-int process_input(Map *game)
-{
-	printf("\n> ");
-
-	char ch = getchar();
-	getchar();
-
-	int damage = rand() % 4;
-
-	switch (ch) {
-	case -1:
-		printf("Giving up? You suck!\n");
-		return 0;
-		break;
-
-	case 'n':
-		game->_(move)(game, NORTH);
-		break;
-
-	case 's':
-		game->_(move)(game, SOUTH);
-		break;
-
-	case 'e':
-		game->_(move)(game, EAST);
-		break;
-
-	case 'w':
-		game->_(move)(game, WEST);
-		break;
-
-	case 'a':
-		game->_(attack)(game, damage);
-		break;
-
-	case 'l':
-		printf("You can go:\n");
-
-		if (game->location->north)
-			printf("North\n");
-		if (game->location->south)
-			printf("South\n");
-		if (game->location->east)
-			printf("East\n");
-		if (game->location->west)
-			printf("West\n");
-
-		break;
-
-	default:
-		printf("What?: %d\n", ch);
-	}
-
-	return 1;
-}
-
-int main(int argc, char **argv)
-{
-	srand(time(NULL));
-
-	Map *game = NEW(Map, "The Hall of the Minotaur");
-
-	printf("You enter the ");
-	game->location->_(describe)(game->location);
-
-	while (process_input(game)) {
-	}
-
-	return 0;
+	return 0;	
 }
