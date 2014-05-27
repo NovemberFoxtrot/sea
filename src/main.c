@@ -1,221 +1,123 @@
 #include <stdio.h>
 #include "miniunit.h"
 #include "dbg.h"
-#include "list.h"
+#include "darray.h"
 #include <assert.h>
 
-
-List *List_create() {
-	return calloc(1, sizeof(List));
-}
-
-void List_destroy(List *list) {
-	LIST_FOREACH(list, first, next, cur) {
-		if(cur->prev) {
-			free(cur->prev);
-		}
-	}
-
-	free(list->last);
-	free(list);
-}
-
-void List_clear(List *list) {
-	LIST_FOREACH(list, first, next, cur) {
-		free(cur->value);
-	}
-}
-
-void List_clear_destroy(List *list) {
-	List_clear(list);
-	List_destroy(list);
-}
-
-void List_push(List *list, void *value) {
-	ListNode *node = calloc(1, sizeof(ListNode));
-	check_mem(node);
-
-	node->value = value;
-
-	if(list->last == NULL) {
-		list->first = node;
-		list->last = node;
-	} else {
-		list->last->next = node;
-		node->prev = list->last;
-		list->last = node;
-	}
-
-	list->count++;
-
-error:
-	return;
-}
-
-void *List_pop(List *list) {
-	ListNode *node = list->last;
-	return node != NULL ? List_remove(list, node) : NULL;
-}
-
-void List_unshift(List *list, void *value) {
-	ListNode *node = calloc(1, sizeof(ListNode));
-	check_mem(node);
-
-	 node->value = value;
-
-    if(list->first == NULL) {
-        list->first = node;
-        list->last = node;
-    } else {
-        node->next = list->first;
-        list->first->prev = node;
-        list->first = node;
-    }
-
-    list->count++;
-
-error:
-	return;
-}
-
-void *List_shift(List *list)
-{
-    ListNode *node = list->first;
-    return node != NULL ? List_remove(list, node) : NULL;
-}
-
-void *List_remove(List *list, ListNode *node)
-{
-    void *result = NULL;
-
-    check(list->first && list->last, "List is empty.");
-    check(node, "node can't be NULL");
-
-    if(node == list->first && node == list->last) {
-        list->first = NULL;
-        list->last = NULL;
-    } else if(node == list->first) {
-        list->first = node->next;
-        check(list->first != NULL, "Invalid list, somehow got a first that is NULL.");
-        list->first->prev = NULL;
-    } else if (node == list->last) {
-        list->last = node->prev;
-        check(list->last != NULL, "Invalid list, somehow got a next that is NULL.");
-        list->last->next = NULL;
-    } else {
-        ListNode *after = node->next;
-        ListNode *before = node->prev;
-        after->prev = before;
-        before->next = after;
-    }
-
-    list->count--;
-    result = node->value;
-    free(node);
-
-error:
-    return result;
-}
-
-static List *list = NULL;
-char *test1 = "test1 data";
-char *test2 = "test2 data";
-char *test3 = "test3 data";
-
+static DArray *array = NULL;
+static int *val1 = NULL;
+static int *val2 = NULL;
 
 char *test_create()
 {
-    list = List_create();
-    mu_assert(list != NULL, "Failed to create list.");
+    array = DArray_create(sizeof(int), 100);
+    mu_assert(array != NULL, "DArray_create failed.");
+    mu_assert(array->contents != NULL, "contents are wrong in darray");
+    mu_assert(array->end == 0, "end isn't at the right spot");
+    mu_assert(array->element_size == sizeof(int), "element size is wrong.");
+    mu_assert(array->max == 100, "wrong max length on initial size");
 
     return NULL;
 }
-
 
 char *test_destroy()
 {
-    List_clear_destroy(list);
-
-    return NULL;
-
-}
-
-
-char *test_push_pop()
-{
-    List_push(list, test1);
-    mu_assert(List_last(list) == test1, "Wrong last value.");
-
-    List_push(list, test2);
-    mu_assert(List_last(list) == test2, "Wrong last value");
-
-    List_push(list, test3);
-    mu_assert(List_last(list) == test3, "Wrong last value.");
-    mu_assert(List_count(list) == 3, "Wrong count on push.");
-
-    char *val = List_pop(list);
-    mu_assert(val == test3, "Wrong value on pop.");
-
-    val = List_pop(list);
-    mu_assert(val == test2, "Wrong value on pop.");
-
-    val = List_pop(list);
-    mu_assert(val == test1, "Wrong value on pop.");
-    mu_assert(List_count(list) == 0, "Wrong count after pop.");
+    DArray_destroy(array);
 
     return NULL;
 }
 
-char *test_unshift()
+char *test_new()
 {
-    List_unshift(list, test1);
-    mu_assert(List_first(list) == test1, "Wrong first value.");
+    val1 = DArray_new(array);
+    mu_assert(val1 != NULL, "failed to make a new element");
 
-    List_unshift(list, test2);
-    mu_assert(List_first(list) == test2, "Wrong first value");
+    val2 = DArray_new(array);
+    mu_assert(val2 != NULL, "failed to make a new element");
 
-    List_unshift(list, test3);
-    mu_assert(List_first(list) == test3, "Wrong last value.");
-    mu_assert(List_count(list) == 3, "Wrong count on unshift.");
+    return NULL;
+}
+
+char *test_set()
+{
+    DArray_set(array, 0, val1);
+    DArray_set(array, 1, val2);
+
+    return NULL;
+}
+
+char *test_get()
+{
+    mu_assert(DArray_get(array, 0) == val1, "Wrong first value.");
+    mu_assert(DArray_get(array, 1) == val2, "Wrong second value.");
 
     return NULL;
 }
 
 char *test_remove()
 {
-char *val = List_remove(list, list->first->next);
-    mu_assert(val == test2, "Wrong removed element.");
-    mu_assert(List_count(list) == 2, "Wrong count after remove.");
-    mu_assert(List_first(list) == test3, "Wrong first after remove.");
-    mu_assert(List_last(list) == test1, "Wrong last after remove.");
+    int *val_check = DArray_remove(array, 0);
+    mu_assert(val_check != NULL, "Should not get NULL.");
+    mu_assert(*val_check == *val1, "Should get the first value.");
+    mu_assert(DArray_get(array, 0) == NULL, "Should be gone.");
+    DArray_free(val_check);
+
+    val_check = DArray_remove(array, 1);
+    mu_assert(val_check != NULL, "Should not get NULL.");
+    mu_assert(*val_check == *val2, "Should get the first value.");
+    mu_assert(DArray_get(array, 1) == NULL, "Should be gone.");
+    DArray_free(val_check);
 
     return NULL;
 }
 
-
-char *test_shift()
+char *test_expand_contract()
 {
-    mu_assert(List_count(list) != 0, "Wrong count before shift.");
+    int old_max = array->max;
+    DArray_expand(array);
+    mu_assert((unsigned int)array->max == old_max + array->expand_rate, "Wrong size after expand.");
 
-    char *val = List_shift(list);
-    mu_assert(val == test3, "Wrong value on shift.");
+    DArray_contract(array);
+    mu_assert((unsigned int)array->max == array->expand_rate + 1, "Should stay at the expand_rate at least.");
 
-    val = List_shift(list);
-    mu_assert(val == test1, "Wrong value on shift.");
-
-    mu_assert(List_count(list) == 0, "Wrong count after shift.");
+    DArray_contract(array);
+    mu_assert((unsigned int)array->max == array->expand_rate + 1, "Should stay at the expand_rate at least.");
 
     return NULL;
 }
 
-char *all_tests() {
+char *test_push_pop()
+{
+    int i = 0;
+    for(i = 0; i < 1000; i++) {
+        int *val = DArray_new(array);
+        *val = i * 333;
+        DArray_push(array, val);
+    }
+
+    mu_assert(array->max == 1201, "Wrong max size.");
+
+    for(i = 999; i >= 0; i--) {
+        int *val = DArray_pop(array);
+        mu_assert(val != NULL, "Shouldn't get a NULL.");
+        mu_assert(*val == i * 333, "Wrong value.");
+        DArray_free(val);
+    }
+
+    return NULL;
+}
+
+
+char * all_tests() {
     mu_suite_start();
 
     mu_run_test(test_create);
-    mu_run_test(test_push_pop);
-    mu_run_test(test_unshift);
+    mu_run_test(test_new);
+    mu_run_test(test_set);
+    mu_run_test(test_get);
     mu_run_test(test_remove);
-    mu_run_test(test_shift);
+    mu_run_test(test_expand_contract);
+    mu_run_test(test_push_pop);
     mu_run_test(test_destroy);
 
     return NULL;
