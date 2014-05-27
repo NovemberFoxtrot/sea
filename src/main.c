@@ -2,6 +2,7 @@
 #include "miniunit.h"
 #include "dbg.h"
 #include "darray.h"
+#include "hashmap.h"
 #include <assert.h>
 
 static DArray *array = NULL;

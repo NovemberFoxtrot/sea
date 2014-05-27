@@ -6,8 +6,8 @@
 
 #define DEFAULT_NUMBER_OF_BUCKETS 100
 
-typedef int (*Hashmap_compare)(void *a, void *b)
-typedef uint32_t (*Hashmap_hash)(void *key)
+typedef int (*Hashmap_compare)(void *a, void *b);
+typedef uint32_t (*Hashmap_hash)(void *key);
 
 typedef struct Hashmap {
 	DArray *buckets;
