@@ -5,13 +5,15 @@
 
 struct ListNode;
 
-typedef struct ListNode {
+typedef struct ListNode
+{
 	struct ListNode *next;
 	struct ListNode *prev;
 	void *value;
 } ListNode;
 
-typedef struct List {
+typedef struct List
+{
 	int count;
 	ListNode *first;
 	ListNode *last;
@@ -34,8 +36,9 @@ void *List_shift(List *list);
 
 void *List_remove(List *list, ListNode *node);
 
-#define LIST_FOREACH(L, S, M, V) ListNode *_node = NULL;\
-	ListNode *V = NULL;\
-	for(V = _node = L->S; _node != NULL; V = _node = _node->M)	
+#define LIST_FOREACH(L, S, M, V)                                               \
+	ListNode *_node = NULL;                                                \
+	ListNode *V = NULL;                                                    \
+	for (V = _node = L->S; _node != NULL; V = _node = _node->M)
 
 #endif

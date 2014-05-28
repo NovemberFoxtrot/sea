@@ -2,126 +2,124 @@
 #include "miniunit.h"
 #include "dbg.h"
 #include "darray.h"
+#include "bstrlib.h"
 #include "hashmap.h"
 #include <assert.h>
 
-static DArray *array = NULL;
-static int *val1 = NULL;
-static int *val2 = NULL;
+Hashmap *map = NULL;
+static int traverse_called = 0;
+struct tagbstring test1 = bsStatic("test data 1");
+struct tagbstring test2 = bsStatic("test data 2");
+struct tagbstring test3 = bsStatic("xest data 3");
+struct tagbstring expect1 = bsStatic("THE VALUE 1");
+struct tagbstring expect2 = bsStatic("THE VALUE 2");
+struct tagbstring expect3 = bsStatic("THE VALUE 3");
+
+static int traverse_good_cb(HashmapNode *node)
+{
+	debug("aaaaaaaaaaaaaaaaaaaaaa");
+	debug("KEY: %s", bdata((bstring)node->key));
+	traverse_called++;
+	return 0;
+}
+
+static int traverse_fail_cb(HashmapNode *node)
+{
+	debug("KEY: %s", bdata((bstring)node->key));
+	traverse_called++;
+
+	if (traverse_called == 2) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
 
 char *test_create()
 {
-    array = DArray_create(sizeof(int), 100);
-    mu_assert(array != NULL, "DArray_create failed.");
-    mu_assert(array->contents != NULL, "contents are wrong in darray");
-    mu_assert(array->end == 0, "end isn't at the right spot");
-    mu_assert(array->element_size == sizeof(int), "element size is wrong.");
-    mu_assert(array->max == 100, "wrong max length on initial size");
+	map = Hashmap_create(NULL, NULL);
+	mu_assert(map != NULL, "Failed to create map.");
 
-    return NULL;
+	return NULL;
 }
 
 char *test_destroy()
 {
-    DArray_destroy(array);
+	Hashmap_destroy(map);
 
-    return NULL;
+	return NULL;
 }
 
-char *test_new()
+char *test_get_set()
 {
-    val1 = DArray_new(array);
-    mu_assert(val1 != NULL, "failed to make a new element");
+	int rc = Hashmap_set(map, &test1, &expect1);
+	mu_assert(rc == 0, "Failed to set &test1");
+	bstring result = Hashmap_get(map, &test1);
+	mu_assert(result == &expect1, "Wrong value for test1.");
 
-    val2 = DArray_new(array);
-    mu_assert(val2 != NULL, "failed to make a new element");
+	rc = Hashmap_set(map, &test2, &expect2);
+	mu_assert(rc == 0, "Failed to set test2");
+	result = Hashmap_get(map, &test2);
+	mu_assert(result == &expect2, "Wrong value for test2.");
 
-    return NULL;
+	rc = Hashmap_set(map, &test3, &expect3);
+	mu_assert(rc == 0, "Failed to set test3");
+	result = Hashmap_get(map, &test3);
+	mu_assert(result == &expect3, "Wrong value for test3.");
+
+	return NULL;
 }
 
-char *test_set()
+char *test_traverse()
 {
-    DArray_set(array, 0, val1);
-    DArray_set(array, 1, val2);
+	int rc = Hashmap_traverse(map, traverse_good_cb);
+	mu_assert(rc == 0, "Failed to traverse.");
+	debug("travered : %d\n", traverse_called);
+	mu_assert(traverse_called == 3, "Wrong count traverse.");
 
-    return NULL;
+	traverse_called = 0;
+	rc = Hashmap_traverse(map, traverse_fail_cb);
+	debug("rc : %d\n", rc);
+	mu_assert(rc == 1, "Failed to traverse.");
+	mu_assert(traverse_called == 2, "Wrong count traverse for fail.");
+
+	return NULL;
 }
 
-char *test_get()
+char *test_delete()
 {
-    mu_assert(DArray_get(array, 0) == val1, "Wrong first value.");
-    mu_assert(DArray_get(array, 1) == val2, "Wrong second value.");
+	bstring deleted = (bstring)Hashmap_delete(map, &test1);
+	mu_assert(deleted != NULL, "Got NULL on delete.");
+	mu_assert(deleted == &expect1, "Should get test1");
+	bstring result = Hashmap_get(map, &test1);
+	mu_assert(result == NULL, "Should delete.");
 
-    return NULL;
+	deleted = (bstring)Hashmap_delete(map, &test2);
+	mu_assert(deleted != NULL, "Got NULL on delete.");
+	mu_assert(deleted == &expect2, "Should get test2");
+	result = Hashmap_get(map, &test2);
+	mu_assert(result == NULL, "Should delete.");
+
+	deleted = (bstring)Hashmap_delete(map, &test3);
+	mu_assert(deleted != NULL, "Got NULL on delete.");
+	mu_assert(deleted == &expect3, "Should get test3");
+	result = Hashmap_get(map, &test3);
+	mu_assert(result == NULL, "Should delete.");
+
+	return NULL;
 }
 
-char *test_remove()
+char *all_tests()
 {
-    int *val_check = DArray_remove(array, 0);
-    mu_assert(val_check != NULL, "Should not get NULL.");
-    mu_assert(*val_check == *val1, "Should get the first value.");
-    mu_assert(DArray_get(array, 0) == NULL, "Should be gone.");
-    DArray_free(val_check);
+	mu_suite_start();
 
-    val_check = DArray_remove(array, 1);
-    mu_assert(val_check != NULL, "Should not get NULL.");
-    mu_assert(*val_check == *val2, "Should get the first value.");
-    mu_assert(DArray_get(array, 1) == NULL, "Should be gone.");
-    DArray_free(val_check);
+	mu_run_test(test_create);
+	mu_run_test(test_get_set);
+	mu_run_test(test_traverse);
+	mu_run_test(test_delete);
+	mu_run_test(test_destroy);
 
-    return NULL;
-}
-
-char *test_expand_contract()
-{
-    int old_max = array->max;
-    DArray_expand(array);
-    mu_assert((unsigned int)array->max == old_max + array->expand_rate, "Wrong size after expand.");
-
-    DArray_contract(array);
-    mu_assert((unsigned int)array->max == array->expand_rate + 1, "Should stay at the expand_rate at least.");
-
-    DArray_contract(array);
-    mu_assert((unsigned int)array->max == array->expand_rate + 1, "Should stay at the expand_rate at least.");
-
-    return NULL;
-}
-
-char *test_push_pop()
-{
-    int i = 0;
-    for(i = 0; i < 1000; i++) {
-        int *val = DArray_new(array);
-        *val = i * 333;
-        DArray_push(array, val);
-    }
-
-    mu_assert(array->max == 1201, "Wrong max size.");
-
-    for(i = 999; i >= 0; i--) {
-        int *val = DArray_pop(array);
-        mu_assert(val != NULL, "Shouldn't get a NULL.");
-        mu_assert(*val == i * 333, "Wrong value.");
-        DArray_free(val);
-    }
-
-    return NULL;
-}
-
-
-char * all_tests() {
-    mu_suite_start();
-
-    mu_run_test(test_create);
-    mu_run_test(test_new);
-    mu_run_test(test_set);
-    mu_run_test(test_get);
-    mu_run_test(test_remove);
-    mu_run_test(test_expand_contract);
-    mu_run_test(test_push_pop);
-    mu_run_test(test_destroy);
-
-    return NULL;
+	return NULL;
 }
 
 RUN_TESTS(all_tests);
