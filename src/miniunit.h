@@ -21,7 +21,7 @@
 		return message;
 
 #define RUN_TESTS(name)                                                        \
-	int main(int argc, char *argv[])                                       \
+	int main(int argc, char **argv)                                        \
 	{                                                                      \
 		argc = 1;                                                      \
 		debug("----- RUNNING: %s", argv[0]);                           \
