@@ -1,13 +1,15 @@
-#include "bstrlib.h"
-#include "darray.h"
 #include "dbg.h"
-#include "hashmap.h"
 #include "miniunit.h"
 #include <assert.h>
 #include <stdio.h>
 
-int dfs(int a[], int n, int k, int i, int sum)
-{
+int dfs(int a[], int n, int k, int i, int sum);
+char *test_dfs(void);
+char *all_tests(void);
+
+RUN_TESTS(all_tests)
+
+int dfs(int a[], int n, int k, int i, int sum) {
 	/* reached end. time to pony up. */
 	if (i == n) {
 		return sum == k;
@@ -18,7 +20,7 @@ int dfs(int a[], int n, int k, int i, int sum)
 		return 1;
 	}
 
-	/* use current */
+	/* use current value */
 	if (dfs(a, n, k, i + 1, sum + a[i])) {
 		return 1;
 	}
@@ -34,19 +36,13 @@ char *test_dfs() {
 
 	mu_assert(dfs(a, n, k, 0, 0) == 1, "Unable\n");
 
-	k = 15;
-	mu_assert(dfs(a, n, k, 0, 0) == 0, "Unable\n");
-
 	return NULL;
 }
 
-char *all_tests()
-{
+char *all_tests() {
 	mu_suite_start();
 
 	mu_run_test(test_dfs);
 
 	return NULL;
 }
-
-RUN_TESTS(all_tests);
