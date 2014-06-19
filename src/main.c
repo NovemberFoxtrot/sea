@@ -9,45 +9,77 @@ char *all_tests(void);
 
 RUN_TESTS(all_tests)
 
+void wipe(char **xy, int i, int j) {
+	for (int x = -1; x < 2; x++) {
+		for (int y = -1; y < 2; y++) {
+			if (i + x < 0 || i + x > 9) continue;
+			if (j + y < 0 || j + y > 9) continue;
+			if (xy[i + x][j + y] != 'w') continue;
+
+			xy[i + x][j + y] = '.';
+
+			wipe(xy, i + x, j + y);
+		}
+	}
+}
+
+int count_lakes(char **xy) {
+	int result = 0;
+
+	for (int i = 0; i < 10; i++) {
+		for (int j = 0; j < 10; j++) {
+			if (xy[i][j] != '.') {
+				result++;
+				wipe(xy, i, j);
+			}
+		}
+	}
+
+	return result;
+}
+
 char *test_2d() {
 	char **xy = calloc(10, sizeof(char*));
-	mu_assert(xy != NULL, "Unable\n");
+	check_mem(xy);
 
-	xy[0] = calloc(3, sizeof(char));
-	mu_assert(xy[0] != NULL, "Unable\n");
+	for(int i = 0; i < 10; i++) {
+		xy[i] = calloc(11, sizeof(char));
+		check_mem(xy[i]);
+	}
 
-	xy[1] = calloc(5, sizeof(char));
-	mu_assert(xy[1] != NULL, "Unable\n");
+	strncpy(xy[0], "w......ww.", 10);
+	strncpy(xy[1], "...w...ww.", 10);
+	strncpy(xy[2], "....ww.w..", 10);
+	strncpy(xy[3], "....w..w..", 10);
+	strncpy(xy[4], ".......ww.", 10);
+	strncpy(xy[5], "..w.....w.", 10);
+	strncpy(xy[6], ".w.w...ww.", 10);
+	strncpy(xy[7], "w.w.w..ww.", 10);
+	strncpy(xy[8], ".w.w....w.", 10);
+	strncpy(xy[9], "..w.......", 10);
 
-	xy[2] = calloc(5, sizeof(char));
-	mu_assert(xy[2] != NULL, "Unable\n");
+	log_info("# lakes: %d", count_lakes(xy));
 
-	xy[0][0] = 'a';
-	xy[0][1] = 'b';
-
-	xy[1][0] = 'a';
-	xy[1][1] = 'b';
-	xy[1][2] = 'c';
-	xy[1][3] = 'd';
-
-	strncpy(xy[2], "123", 3);
-
-	log_info("xy[0]: %s", xy[0]);
-	log_info("xy[1]: %s", xy[1]);
-	log_info("xy[2]: %s", xy[2]);
-	log_info("xy[1][0]: %c", xy[1][0]);
-	log_info("xy[1][3]: %c", xy[1][3]);
-	log_info("xy[2][2]: %c", xy[2][2]);
-
-	free(xy[0]);
-	free(xy[1]);
-	free(xy[2]);
+	for(int i = 0; i < 10; i++) {
+		free(xy[i]);
+		xy[i] = NULL;
+	}
 
 	free(xy);
 
 	xy = NULL;
 
 	mu_assert(xy == NULL, "Unable\n");
+
+	return NULL;
+
+error:
+	for(int i = 0; i < 10; i++) {
+		free(xy[i]);
+		xy[i] = NULL;
+	}
+
+	free(xy);
 
 	return NULL;
 }
