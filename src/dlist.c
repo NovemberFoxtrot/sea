@@ -108,5 +108,5 @@ void *DList_remove(DList *dlist, DListNode *dnode) {
 	free(dnode);
 
 error:
-	return;
+	return result;
 }

@@ -85,6 +85,13 @@ error:
 	return NULL;
 }
 
+int bfs(char **xy) {
+	DList *queue;
+	queue = DList_create();
+	
+	DList_clear_destroy(queue);
+}
+
 char *test_maze() {
 	char **xy = calloc(10, sizeof(char*));
 	check_mem(xy);
@@ -202,8 +209,7 @@ char *test_remove()
 	return NULL;
 }
 
-char *test_shift()
-{
+char *test_shift() {
 	mu_assert(DList_count(dlist) != 0, "Wrong count before shift.");
 
 	char *val = DList_shift(dlist);
@@ -212,6 +218,11 @@ char *test_shift()
 	val = DList_shift(dlist);
 	mu_assert(val == test1, "Wrong value on shift.");
 	mu_assert(DList_count(dlist) == 0, "Wrong count after shift.");
+
+	return NULL;
+}
+
+char *test_sim_dist() {
 
 	return NULL;
 }

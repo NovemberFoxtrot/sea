@@ -3,7 +3,7 @@ CFLAGS=-g -Wall -Wextra -Wformat=2 -Wno-format-nonliteral -Wshadow -Wpointer-ari
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 
-SOURCES=$(wildcard src/**/*.c src/*.c src/*.h)
+SOURCES=$(wildcard src/**/*.c src/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 
 TARGET=build/sea
