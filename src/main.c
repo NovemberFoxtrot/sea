@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "dbg.h"
 #include "miniunit.h"
 #include <assert.h>
@@ -84,10 +85,29 @@ error:
 	return NULL;
 }
 
+char *test_wiz() {
+	int_fast32_t w = 123;
+
+	w ^= w; /* faster ??? */
+
+	mu_assert(w == 0, "Did not work");
+
+	w = 10;
+
+	w = w << 2;
+
+	printf("%d\n", w);
+
+	mu_assert(w == 40, "ouch");
+
+	return NULL;
+}
+
 char *all_tests() {
 	mu_suite_start();
 
 	mu_run_test(test_2d);
+	mu_run_test(test_wiz);
 
 	return NULL;
 }
