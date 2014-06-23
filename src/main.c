@@ -222,7 +222,23 @@ char *test_shift() {
 	return NULL;
 }
 
-char *test_sim_dist() {
+#define min(X,Y) ((X) < (Y) ? (X) : (Y))
+
+char *test_coins() {
+	const int V[6] = { 1, 5, 10, 50, 100, 500 };
+
+	int C[6] = { 10, 10, 10, 10, 10, 10 };
+	int A = 1124;
+
+	int ans = 0;
+
+	for (int i = 5; i >= 0; i--) {
+		int t = min(A / V[i], C[i]);
+		A -= t * V[i];
+		ans += t;
+	}
+
+	mu_assert(ans == 9, "number of coins used is off");
 
 	return NULL;
 }
@@ -240,6 +256,8 @@ char *all_tests()
 	mu_run_test(test_remove);
 	mu_run_test(test_shift);
 	mu_run_test(test_destroy);
+
+	mu_run_test(test_coins);
 
 	return NULL;
 }
