@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <Judy.h>
+
 int dfs(int a[], int n, int k, int i, int sum);
 char *test_dfs(void);
 char *all_tests(void);
