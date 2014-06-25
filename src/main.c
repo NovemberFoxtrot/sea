@@ -88,19 +88,36 @@ error:
 }
 
 char *test_wiz() {
-	int_fast32_t w = 123;
+	Pvoid_t PJArray = (PWord_t)NULL; // Judy array.
+	PWord_t PValue;			 // Judy array element.
+	Word_t Bytes;			 // size of JudySL array.
 
-	w ^= w; /* faster ??? */
+	char dude[10] = "THE";
 
-	mu_assert(w == 0, "Did not work");
+	JSLI(PValue, PJArray, "THE");
+	*PValue = 1;
+	JSLI(PValue, PJArray, "DUDE");
+	*PValue = 2;
+	JSLI(PValue, PJArray, "ABIDES");
+	*PValue = "duuuuude";
 
-	w = 10;
+	if (PValue == PJERR) {
+		printf("Malloc failed -- get more ram\n");
+		exit(1);
+	}
 
-	w = w << 2;
+	dude[0] = '\0';
 
-	printf("%d\n", w);
+	JSLF(PValue, PJArray, dude);
+	printf("%s %s\n", dude, *PValue);
 
-	mu_assert(w == 40, "ouch");
+	JSLN(PValue, PJArray, dude);
+	printf("%s %d\n", dude, *PValue);
+
+	JSLN(PValue, PJArray, dude);
+	printf("%s %d\n", dude, *PValue);
+
+	JSLFA(Bytes, PJArray);
 
 	return NULL;
 }
