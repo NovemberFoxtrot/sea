@@ -95,9 +95,9 @@ char *test_wiz() {
 	char dude[10] = "THE";
 
 	JSLI(PValue, PJArray, "THE");
-	*PValue = 1;
+	*PValue = "arg";
 	JSLI(PValue, PJArray, "DUDE");
-	*PValue = 2;
+	*PValue = "鬼";
 	JSLI(PValue, PJArray, "ABIDES");
 	*PValue = "duuuuude";
 
@@ -109,13 +109,11 @@ char *test_wiz() {
 	dude[0] = '\0';
 
 	JSLF(PValue, PJArray, dude);
-	printf("%s %s\n", dude, *PValue);
 
-	JSLN(PValue, PJArray, dude);
-	printf("%s %d\n", dude, *PValue);
-
-	JSLN(PValue, PJArray, dude);
-	printf("%s %d\n", dude, *PValue);
+	while(PValue != NULL) {
+		printf("%s %s\n", dude, *PValue);
+		JSLN(PValue, PJArray, dude);
+	}
 
 	JSLFA(Bytes, PJArray);
 
