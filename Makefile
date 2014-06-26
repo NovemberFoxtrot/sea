@@ -1,4 +1,4 @@
-CFLAGS=-g -Wall -Wextra -Wformat=2 -Wno-format-nonliteral -Wshadow -Wpointer-arith -Wcast-qual -Wmissing-prototypes -Wno-missing-braces -std=c99 -O2 -pedantic
+CFLAGS=-g -Wall -Wextra -Wformat=2 -Wno-format-nonliteral -Wshadow -Wpointer-arith -Wcast-qual -Wmissing-prototypes -Wno-missing-braces -std=c99 -O2 -pedantic -ftree-vectorize -ftree-vectorizer-verbose=1
 
 LIBS=-ldl -lJudy $(OPTLIBS)
 PREFIX?=/usr/local

@@ -7,6 +7,7 @@
 #include <Judy.h>
 
 int dfs(int a[], int n, int k, int i, int sum);
+
 char *test_dfs(void);
 char *all_tests(void);
 
@@ -95,11 +96,16 @@ char *test_wiz() {
 	char dude[10] = "THE";
 
 	JSLI(PValue, PJArray, "THE");
-	*PValue = "arg";
+	*PValue += 1;
+
 	JSLI(PValue, PJArray, "DUDE");
-	*PValue = "鬼";
+	*PValue += 1;
+
 	JSLI(PValue, PJArray, "ABIDES");
-	*PValue = "duuuuude";
+	*PValue += 1;
+
+	JSLI(PValue, PJArray, "the");
+	(*PValue)++;
 
 	if (PValue == PJERR) {
 		printf("Malloc failed -- get more ram\n");
@@ -111,11 +117,13 @@ char *test_wiz() {
 	JSLF(PValue, PJArray, dude);
 
 	while(PValue != NULL) {
-		printf("%s %s\n", dude, *PValue);
+		printf("%s %d\n", dude, *PValue);
 		JSLN(PValue, PJArray, dude);
 	}
 
 	JSLFA(Bytes, PJArray);
+
+	printf("%lu bytes used\n", Bytes);
 
 	return NULL;
 }
