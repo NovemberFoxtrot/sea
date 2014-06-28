@@ -88,7 +88,7 @@ error:
 	return NULL;
 }
 
-char *test_wiz() {
+char *test_judy() {
 	Pvoid_t PJArray = (PWord_t)NULL; // Judy array.
 	PWord_t PValue;			 // Judy array element.
 	Word_t Bytes;			 // size of JudySL array.
@@ -132,7 +132,7 @@ char *all_tests() {
 	mu_suite_start();
 
 	mu_run_test(test_2d);
-	mu_run_test(test_wiz);
+	mu_run_test(test_judy);
 
 	return NULL;
 }
