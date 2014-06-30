@@ -93,7 +93,7 @@ char *test_judy() {
 	PWord_t PValue;			 // Judy array element.
 	Word_t Bytes;			 // size of JudySL array.
 
-	char dude[10] = "THE";
+	char dude[10];
 
 	JSLI(PValue, PJArray, "THE");
 	*PValue += 1;
