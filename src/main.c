@@ -104,9 +104,6 @@ char *test_judy() {
 	JSLI(PValue, PJArray, "ABIDES");
 	*PValue += 1;
 
-	JSLI(PValue, PJArray, "the");
-	(*PValue)++;
-
 	if (PValue == PJERR) {
 		printf("Malloc failed -- get more ram\n");
 		exit(1);
