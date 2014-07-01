@@ -89,24 +89,26 @@ error:
 }
 
 char *test_judy() {
-	Pvoid_t PJArray = (PWord_t)NULL; // Judy array.
-	PWord_t PValue;			 // Judy array element.
-	Word_t Bytes;			 // size of JudySL array.
+	Pvoid_t PJArray = (PWord_t)NULL;
+	PWord_t PValue;
+	Word_t Bytes;
 
 	char dude[10];
 
-	JSLI(PValue, PJArray, "THE");
-	*PValue += 1;
+	char s[256];
+	strcpy(s, "one two three  one 1234567890");
+	char *token = strtok(s, " ");
 
-	JSLI(PValue, PJArray, "DUDE");
-	*PValue += 1;
+	while (token) {
+		JSLI(PValue, PJArray, token);
 
-	JSLI(PValue, PJArray, "ABIDES");
-	*PValue += 1;
+		if (PValue == PJERR) {
+			printf("malloc failed\n");
+			exit(1);
+		}
 
-	if (PValue == PJERR) {
-		printf("Malloc failed -- get more ram\n");
-		exit(1);
+		*PValue += 1;
+		token = strtok(NULL, " ");
 	}
 
 	dude[0] = '\0';
