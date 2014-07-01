@@ -45,11 +45,12 @@ int main() {
 	fputc('[', stdout); // Start the list
 
 	while (fgets(inbuffer, MAX_LINE_LENGTH, stdin) != NULL) {
+
 		// Start writing the JSON object to the buffer
 		// Include a leading comma if we need to separate it from its
 		// predecessor
 		if (lines) {
-			strcpy(outbuffer, ",\n{");
+			strcpy(outbuffer, ",\n {");
 		} else {
 			strcpy(outbuffer, "{");
 		}
@@ -59,15 +60,19 @@ int main() {
 		pe = inbuffer + strlen(inbuffer);
 		ts = p;
 
+		fprintf(stdout, "1p  : %s", p);
+		fprintf(stdout, "1pe : %s", pe);
+		fprintf(stdout, "1ts : %s", ts);
+
 		
-#line 64 "m.c"
+#line 69 "m.c"
 	{
 	cs = parser_start;
 	}
 
-#line 56 "m.rl"
+#line 61 "m.rl"
 		
-#line 71 "m.c"
+#line 76 "m.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -91,7 +96,7 @@ st2:
 	if ( ++p == pe )
 		goto _test_eof2;
 case 2:
-#line 95 "m.c"
+#line 100 "m.c"
 	if ( (*p) == 32 )
 		goto tr2;
 	if ( (*p) < 65 ) {
@@ -111,7 +116,7 @@ st3:
 	if ( ++p == pe )
 		goto _test_eof3;
 case 3:
-#line 115 "m.c"
+#line 120 "m.c"
 	goto st0;
 	}
 	_test_eof2: cs = 2; goto _test_eof; 
@@ -121,7 +126,11 @@ case 3:
 	_out: {}
 	}
 
-#line 57 "m.rl"
+#line 62 "m.rl"
+
+		fprintf(stdout, "2p  : %s", p);
+		fprintf(stdout, "2pe : %s", pe);
+		fprintf(stdout, "2ts : %s", ts);
 
 		// Finalize the object, chomping off the last comma
 		int len = strnlen(outbuffer, MAX_LINE_LENGTH);

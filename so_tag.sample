@@ -1,0 +1,10 @@
+[[header]]
+<html>
+<head><title>title</title></head>
+<body>
+<h1>[[headertext]]</h1>
+<p>I am feeling very [[emotion]].</p>
+<p>I like brackets: [ is cool. ] is cool. [] are cool. But [[tag]] is special.</p>
+</body>
+</html>
+[[footer]][[dude]]

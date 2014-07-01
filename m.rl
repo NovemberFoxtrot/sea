@@ -38,11 +38,12 @@ int main() {
 	fputc('[', stdout); // Start the list
 
 	while (fgets(inbuffer, MAX_LINE_LENGTH, stdin) != NULL) {
+
 		// Start writing the JSON object to the buffer
 		// Include a leading comma if we need to separate it from its
 		// predecessor
 		if (lines) {
-			strcpy(outbuffer, ",\n{");
+			strcpy(outbuffer, ",\n {");
 		} else {
 			strcpy(outbuffer, "{");
 		}
@@ -52,8 +53,16 @@ int main() {
 		pe = inbuffer + strlen(inbuffer);
 		ts = p;
 
+		fprintf(stdout, "1p  : %s", p);
+		fprintf(stdout, "1pe : %s", pe);
+		fprintf(stdout, "1ts : %s", ts);
+
 		%% write init;
 		%% write exec;
+
+		fprintf(stdout, "2p  : %s", p);
+		fprintf(stdout, "2pe : %s", pe);
+		fprintf(stdout, "2ts : %s", ts);
 
 		// Finalize the object, chomping off the last comma
 		int len = strnlen(outbuffer, MAX_LINE_LENGTH);
