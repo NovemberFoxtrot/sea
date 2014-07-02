@@ -7,10 +7,13 @@ static char *text_start;
 %%{
   machine parser;
 
-  action MarkStart { text_start = fpc; }
+  action MarkStart { 
+		text_start = fpc; 
+	}
 
   action PrintTextNode {
     int text_len = fpc - text_start;
+
     if (text_len > 0) {
       printf("TEXT(%.*s)\n", text_len, text_start);
     }
@@ -21,12 +24,16 @@ static char *text_start;
     printf("TAG(%.*s)\n", text_len, text_start);
   }
 
-  tag = '[[' (lower+ >MarkStart) ']]' @PrintTagNode;
-  dig = '[[' (digit+ >MarkStart) ']]' @PrintTagNode;
+  action PrintDigitNode {
+    int text_len = fpc - text_start - 1;  /* drop closing bracket */
+    printf("TAG(%.*s)\n", text_len, text_start);
+  }
+
+  tag = '{{' ((lower+ | digit+) >MarkStart) '}}' @PrintTagNode;
 
   main := (
-    (any - '[')* >MarkStart %PrintTextNode
-    ('[' ^'[' %PrintTextNode | tag) >MarkStart
+    (any - '{')* >MarkStart %PrintTextNode
+    ('{' ^'{' %PrintTagNode | tag) >MarkStart
   )* @eof(PrintTextNode);
 }%%
 
@@ -43,7 +50,7 @@ int main(void) {
 
   %% write init;
 
-  do {
+  while (1) {
 	  size_t nread = fread(buffer, 1, sizeof(buffer), stdin);
 
 	  p = buffer;
@@ -58,8 +65,7 @@ int main(void) {
     if (eof || cs == %%{ write error; }%% ) {
 			break;
 		}
-
-  } while (1);
+  }
 
   return 0;
 }
