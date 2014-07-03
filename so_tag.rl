@@ -24,17 +24,19 @@ static char *text_start;
     printf("TAG(%.*s)\n", text_len, text_start);
   }
 
-  action PrintDigitNode {
-    int text_len = fpc - text_start - 1;  /* drop closing bracket */
-    printf("TAG(%.*s)\n", text_len, text_start);
+  action hey {
+    printf("Hey\n");
   }
 
-  tag = '{{' ((lower+ | digit+) >MarkStart) '}}' @PrintTagNode;
+	action pp {
+		printf("%c\n", fc);
+	}
 
-  main := (
-    (any - '{')* >MarkStart %PrintTextNode
-    ('{' ^'{' %PrintTagNode | tag) >MarkStart
-  )* @eof(PrintTextNode);
+  tag = '{{' ((lower+ | digit+) >MarkStart) '}}' @PrintTagNode;
+	dig = digit+ >hey;
+
+  main := ( (any - '{')* >MarkStart %PrintTextNode ('{' ^'{' %PrintTagNode | tag) >MarkStart)*;
+	# @eof(PrintTextNode);
 }%%
 
 %% write data;
