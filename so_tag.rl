@@ -35,9 +35,7 @@ static char *text_start;
   tag = '{{' ((lower+ | digit+) >MarkStart) '}}' @PrintTagNode;
 	nontag = '{' ^'{' %PrintTextNode;
 
-  # main := ( (any - '{')* >MarkStart %PrintTextNode ('{' ^'{' %PrintTagNode | tag) >MarkStart)*;
-  main := ( (any - '{')* >MarkStart %PrintTextNode (nontag | tag) >MarkStart)*;
-	# @eof(PrintTextNode);
+  main := ( (any - '{')* >MarkStart %PrintTextNode (nontag | tag) >MarkStart)* @eof(PrintTextNode);
 }%%
 
 %% write data;
